@@ -23,8 +23,23 @@ function initializeApp() {
     // Align images so faces stay visible in their cards
     centerFacesInImages();
 
-    // Auto-play background music on first interaction
-    document.addEventListener('click', playBackgroundMusic, { once: true });
+    // Check if music should be playing (from previous pages)
+    if (localStorage.getItem('musicPlaying') === 'true') {
+        playBackgroundMusic();
+    }
+
+    // Auto-play background music on first interaction only on index.html
+    if (window.location.pathname.includes('index.html')) {
+        document.addEventListener('click', playBackgroundMusic, { once: true });
+    } else {
+        // For other pages, start music immediately if not already playing
+        const music = document.getElementById('music');
+        if (music && music.paused) {
+            music.volume = 0.3;
+            music.play().catch(e => console.log('Audio play failed:', e));
+            localStorage.setItem('musicPlaying', 'true');
+        }
+    }
 }
 
 function createFloatingHearts() {
@@ -194,6 +209,7 @@ function playBackgroundMusic() {
         music.play().catch(e => {
             console.log('Audio play failed:', e);
         });
+        localStorage.setItem('musicPlaying', 'true');
     }
 }
 
@@ -203,8 +219,10 @@ function playMusic() {
         if (music.paused) {
             music.volume = 0.5;
             music.play();
+            localStorage.setItem('musicPlaying', 'true');
         } else {
             music.pause();
+            localStorage.setItem('musicPlaying', 'false');
         }
     }
 }
